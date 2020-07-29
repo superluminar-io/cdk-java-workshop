@@ -3,14 +3,19 @@
  */
 
 plugins {
+    id 'application'
     id 'java'
     id 'maven-publish'
+}
+
+application {
+    mainClass = 'de.libri.LibriCdkApp'
 }
 
 repositories {
     mavenLocal()
     maven {
-        url = uri('http://repo.maven.apache.org/maven2')
+        url = uri('https://repo.maven.apache.org/maven2')
     }
 }
 

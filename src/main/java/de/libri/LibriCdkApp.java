@@ -1,8 +1,6 @@
-package com.myorg;
+package de.libri;
 
 import software.amazon.awscdk.core.App;
-
-import java.util.Arrays;
 
 public class LibriCdkApp {
     public static void main(final String[] args) {
