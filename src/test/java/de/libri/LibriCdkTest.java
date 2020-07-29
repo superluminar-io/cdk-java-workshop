@@ -1,5 +1,6 @@
 package de.libri;
 
+import org.junit.Ignore;
 import software.amazon.awscdk.core.App;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +16,7 @@ public class LibriCdkTest {
         new ObjectMapper().configure(SerializationFeature.INDENT_OUTPUT, true);
 
     @Test
+    @Ignore
     public void testStack() throws IOException {
         App app = new App();
         LibriCdkStack stack = new LibriCdkStack(app, "test");

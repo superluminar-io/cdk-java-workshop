@@ -21,6 +21,7 @@ repositories {
 
 dependencies {
     implementation 'software.amazon.awscdk:core:1.55.0'
+    implementation 'software.amazon.awscdk:s3:1.55.0'
     testImplementation 'junit:junit:4.12'
 }
 
