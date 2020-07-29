@@ -3,3 +3,4 @@
  */
 
 rootProject.name = 'libri-cdk'
+include 'lambda-func'
