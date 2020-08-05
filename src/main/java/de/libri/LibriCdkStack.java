@@ -50,9 +50,19 @@ public class LibriCdkStack extends Stack {
             .environment(environment)
             .build();
         LambdaProxyIntegration createUrlIntegration = LambdaProxyIntegration.Builder.create().handler(createUrl).build();
+        Function getUrl = Function.Builder.create(this, "getUrl")
+                .code(Code.fromAsset(System.getProperty("user.dir") + "/lambda-func/build/distributions/lambda-func-1.0-SNAPSHOT.zip"))
+                .handler("de.libri.GetURLHandler")
+                .runtime(Runtime.JAVA_8)
+                .memorySize(512)
+                .timeout(Duration.seconds(10))
+                .environment(environment)
+                .build();
+        LambdaProxyIntegration getUrlIntegration = LambdaProxyIntegration.Builder.create().handler(getUrl).build();
 
         // Grant IAM permissions for table access
         table.grantReadWriteData(createUrl);
+        table.grantReadData(getUrl);
 
         // Expose the functions via HTTP
         HttpApi httpApi = HttpApi.Builder.create(this,"HttpApi").build();
@@ -66,6 +76,12 @@ public class LibriCdkStack extends Stack {
                 .path("/")
                 .methods(Arrays.asList(HttpMethod.POST))
                 .integration(createUrlIntegration)
+                .build()
+        );
+        httpApi.addRoutes(AddRoutesOptions.builder()
+                .path("/{short_id}")
+                .methods(Arrays.asList(HttpMethod.GET))
+                .integration(getUrlIntegration)
                 .build()
         );
 
