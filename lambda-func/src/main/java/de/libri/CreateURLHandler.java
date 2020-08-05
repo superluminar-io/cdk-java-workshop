@@ -8,6 +8,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import com.google.gson.Gson;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 
 import java.math.BigInteger;
@@ -46,10 +47,15 @@ public class CreateURLHandler implements RequestHandler<APIGatewayProxyRequestEv
         item.put("id", AttributeValue.builder().s(shortId).build());
         item.put("url", AttributeValue.builder().s(payload.get("url")).build());
 
-        this.getDynamoDbClient().putItem(PutItemRequest.builder().tableName(System.getenv("DYNAMODB_TABLE")).item(item).build());
+        try {
+            this.getDynamoDbClient().putItem(PutItemRequest.builder().tableName(System.getenv("DYNAMODB_TABLE")).item(item).build());
+        } catch (Exception e) {
+            logger.log(e.getMessage());
+        }
 
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
-        String shortUrl = "https://" + input.getHeaders().get("Host") + "/" + shortId;
+        logger.log(input.getHeaders().toString());
+        String shortUrl = "https://" + input.getHeaders().get("host") + "/" + shortId;
         String body = gson.toJson(Collections.singletonMap("short_url", shortUrl));
         response.setBody(body);
         response.setStatusCode(201);

@@ -30,7 +30,7 @@ class CreateURLHandlerTest {
         String body = gson.toJson(Collections.singletonMap("url", "https://libri.de"));
         request.setBody(body);
         // Inject Host name for URL shortener service
-        request.setHeaders(Collections.singletonMap("Host", "example.com"));
+        request.setHeaders(Collections.singletonMap("host", "example.com"));
         APIGatewayProxyResponseEvent response = handler.handleRequest(request, getContext());
         Map data = gson.fromJson(response.getBody(), Map.class);
         assertEquals("https://example.com/1vk6h2ayvbhbd", data.get("short_url"));
