@@ -22,11 +22,11 @@ public class LibriCdkStack extends Stack {
 
     public LibriCdkStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
-        Function myFunc = Function.Builder.create(this, "myFunc").code(Code.fromAsset(System.getProperty("user.dir") + "/lambda-func/build/distributions/lambda-func-1.0-SNAPSHOT.zip")).handler("de.libri.ExampleHandler").runtime(Runtime.JAVA_8).build();
+        Function myFunc = Function.Builder.create(this, "helloWorld").code(Code.fromAsset(System.getProperty("user.dir") + "/lambda-func/build/distributions/lambda-func-1.0-SNAPSHOT.zip")).handler("de.libri.HelloWorldHandler").runtime(Runtime.JAVA_8).build();
         LambdaProxyIntegration lambdaProxyIntegration = LambdaProxyIntegration.Builder.create().handler(myFunc).build();
         HttpApi httpApi = HttpApi.Builder.create(this,"HttpApi").build();
         httpApi.addRoutes(AddRoutesOptions.builder()
-                .path("/foo")
+                .path("/hello-world")
                 .methods(Arrays.asList(HttpMethod.GET))
                 .integration(lambdaProxyIntegration)
                 .build()

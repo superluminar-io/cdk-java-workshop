@@ -11,19 +11,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class ExampleHandlerTest {
+class HelloWorldHandlerTest {
 
     @Test
     void handleRequest() {
-        ExampleHandler handler = new ExampleHandler();
+        HelloWorldHandler handler = new HelloWorldHandler();
         APIGatewayProxyRequestEvent request = new APIGatewayProxyRequestEvent();
-        Gson gson = new Gson();
-        String json = gson.toJson(new Data("spam", "eggs"));
-        request.setBody(json);
         APIGatewayProxyResponseEvent response = handler.handleRequest(request, getContext());
-        Data data = gson.fromJson(response.getBody(), Data.class);
-        assertEquals("spam", data.getFoo());
-        assertEquals("eggs", data.getBar());
+        assertEquals("Hello World!", response.getBody());
     }
 
     private Context getContext() {
