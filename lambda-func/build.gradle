@@ -18,6 +18,7 @@ dependencies {
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
     implementation 'com.amazonaws:aws-lambda-java-events:2.2.9'
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'software.amazon.awssdk:dynamodb:2.13.68'
 
     runtimeOnly 'com.amazonaws:aws-lambda-java-log4j2:1.2.0'
 }

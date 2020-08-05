@@ -6,20 +6,24 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class CreateURLHandlerTest {
 
     @Test
     void handleRequest() {
         CreateURLHandler handler = new CreateURLHandler();
+        DynamoDbClient client = mock(DynamoDbClient.class);
+        handler.setDynamoDbClient(client);
         APIGatewayProxyRequestEvent request = new APIGatewayProxyRequestEvent();
         Gson gson = new Gson();
         // Set the URL to shorten
@@ -30,6 +34,10 @@ class CreateURLHandlerTest {
         APIGatewayProxyResponseEvent response = handler.handleRequest(request, getContext());
         Map data = gson.fromJson(response.getBody(), Map.class);
         assertEquals("https://example.com/1vk6h2ayvbhbd", data.get("short_url"));
+        // Check that DynamodB is called properly
+        ArgumentCaptor<PutItemRequest> argument = ArgumentCaptor.forClass(PutItemRequest.class);
+        verify(client, times(1)).putItem(argument.capture());
+        assertEquals("https://libri.de", argument.getValue().item().get("url").s());
     }
 
     private Context getContext() {
