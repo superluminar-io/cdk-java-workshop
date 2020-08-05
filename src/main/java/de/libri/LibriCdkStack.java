@@ -7,6 +7,10 @@ import software.amazon.awscdk.core.StackProps;
 import software.amazon.awscdk.services.apigatewayv2.AddRoutesOptions;
 import software.amazon.awscdk.services.apigatewayv2.HttpMethod;
 import software.amazon.awscdk.services.apigatewayv2.LambdaProxyIntegration;
+import software.amazon.awscdk.services.dynamodb.Attribute;
+import software.amazon.awscdk.services.dynamodb.AttributeType;
+import software.amazon.awscdk.services.dynamodb.BillingMode;
+import software.amazon.awscdk.services.dynamodb.Table;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.Runtime;
@@ -24,16 +28,34 @@ public class LibriCdkStack extends Stack {
     public LibriCdkStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
 
-        // Create the Lambda function
-        Function myFunc = Function.Builder.create(this, "helloWorld").code(Code.fromAsset(System.getProperty("user.dir") + "/lambda-func/build/distributions/lambda-func-1.0-SNAPSHOT.zip")).handler("de.libri.HelloWorldHandler").runtime(Runtime.JAVA_8).build();
+        // Create DynamoDB table
+        Table table = Table.Builder.create(this, "dynamoDbTable")
+                .tableName("short-urls")
+                .billingMode(BillingMode.PAY_PER_REQUEST)
+                .partitionKey(Attribute.builder().name("id").type(AttributeType.STRING).build())
+                .build();
 
-        // Wire up the Lambda function to be accessible at path '/hello-world'
-        LambdaProxyIntegration lambdaProxyIntegration = LambdaProxyIntegration.Builder.create().handler(myFunc).build();
+        // Create the Lambda functions
+        Function helloWorld = Function.Builder.create(this, "helloWorld").code(Code.fromAsset(System.getProperty("user.dir") + "/lambda-func/build/distributions/lambda-func-1.0-SNAPSHOT.zip")).handler("de.libri.HelloWorldHandler").runtime(Runtime.JAVA_8).build();
+        LambdaProxyIntegration helloWorldIntegration = LambdaProxyIntegration.Builder.create().handler(helloWorld).build();
+        Function createUrl = Function.Builder.create(this, "createUrl").code(Code.fromAsset(System.getProperty("user.dir") + "/lambda-func/build/distributions/lambda-func-1.0-SNAPSHOT.zip")).handler("de.libri.CreateURLHandler").runtime(Runtime.JAVA_8).build();
+        LambdaProxyIntegration createUrlIntegration = LambdaProxyIntegration.Builder.create().handler(createUrl).build();
+
+        // Grant IAM permissions for table access
+        table.grantReadWriteData(createUrl);
+
+        // Expose the functions via HTTP
         HttpApi httpApi = HttpApi.Builder.create(this,"HttpApi").build();
         httpApi.addRoutes(AddRoutesOptions.builder()
                 .path("/hello-world")
                 .methods(Arrays.asList(HttpMethod.GET))
-                .integration(lambdaProxyIntegration)
+                .integration(helloWorldIntegration)
+                .build()
+        );
+        httpApi.addRoutes(AddRoutesOptions.builder()
+                .path("/")
+                .methods(Arrays.asList(HttpMethod.POST))
+                .integration(createUrlIntegration)
                 .build()
         );
 

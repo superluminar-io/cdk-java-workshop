@@ -43,7 +43,7 @@ public class CreateURLHandler implements RequestHandler<APIGatewayProxyRequestEv
         logger.log("Shortened to " + shortId);
 
         HashMap<String, AttributeValue> item = new HashMap<String,AttributeValue>();
-        item.put("short_id", AttributeValue.builder().s(shortId).build());
+        item.put("id", AttributeValue.builder().s(shortId).build());
         item.put("url", AttributeValue.builder().s(payload.get("url")).build());
 
         this.getDynamoDbClient().putItem(PutItemRequest.builder().tableName(System.getenv("DYNAMODB_TABLE")).item(item).build());

@@ -38,6 +38,7 @@ class CreateURLHandlerTest {
         ArgumentCaptor<PutItemRequest> argument = ArgumentCaptor.forClass(PutItemRequest.class);
         verify(client, times(1)).putItem(argument.capture());
         assertEquals("https://libri.de", argument.getValue().item().get("url").s());
+
     }
 
     private Context getContext() {
