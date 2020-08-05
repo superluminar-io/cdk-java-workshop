@@ -1,5 +1,6 @@
 package de.libri;
 
+import software.amazon.awscdk.core.CfnOutput;
 import software.amazon.awscdk.core.Construct;
 import software.amazon.awscdk.core.Stack;
 import software.amazon.awscdk.core.StackProps;
@@ -22,7 +23,11 @@ public class LibriCdkStack extends Stack {
 
     public LibriCdkStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
+
+        // Create the Lambda function
         Function myFunc = Function.Builder.create(this, "helloWorld").code(Code.fromAsset(System.getProperty("user.dir") + "/lambda-func/build/distributions/lambda-func-1.0-SNAPSHOT.zip")).handler("de.libri.HelloWorldHandler").runtime(Runtime.JAVA_8).build();
+
+        // Wire up the Lambda function to be accessible at path '/hello-world'
         LambdaProxyIntegration lambdaProxyIntegration = LambdaProxyIntegration.Builder.create().handler(myFunc).build();
         HttpApi httpApi = HttpApi.Builder.create(this,"HttpApi").build();
         httpApi.addRoutes(AddRoutesOptions.builder()
@@ -32,6 +37,7 @@ public class LibriCdkStack extends Stack {
                 .build()
         );
 
-        // The code that defines your stack goes here
+        // Output the URL for later consumption
+        CfnOutput.Builder.create(this, "URL").value(httpApi.getUrl() + "hello-world").build();
     }
 }
