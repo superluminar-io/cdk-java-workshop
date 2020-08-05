@@ -6,6 +6,9 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.google.gson.Gson;
+import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
+import software.amazon.awssdk.core.SdkSystemSetting;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
@@ -24,7 +27,8 @@ public class CreateURLHandler implements RequestHandler<APIGatewayProxyRequestEv
 
     public DynamoDbClient getDynamoDbClient() {
         if (this.dynamoDbClient == null) {
-            this.dynamoDbClient = DynamoDbClient.builder().build();
+            this.dynamoDbClient = DynamoDbClient.builder().credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+                    .region(Region.of(System.getenv(SdkSystemSetting.AWS_REGION.environmentVariable()))).build();
         }
         return this.dynamoDbClient;
     }
