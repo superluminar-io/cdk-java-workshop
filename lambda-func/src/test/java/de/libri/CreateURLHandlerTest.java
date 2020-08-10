@@ -37,6 +37,7 @@ class CreateURLHandlerTest {
         // Check that DynamodB is called properly
         ArgumentCaptor<PutItemRequest> argument = ArgumentCaptor.forClass(PutItemRequest.class);
         verify(client, times(1)).putItem(argument.capture());
+        assertEquals("1vk6h2ayvbhbd", argument.getValue().item().get("id").s());
         assertEquals("https://libri.de", argument.getValue().item().get("url").s());
 
     }
