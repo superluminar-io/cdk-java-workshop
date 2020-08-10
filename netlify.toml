@@ -1,5 +1,6 @@
 [build]
-publish = "docs/public/"
+base = "docs/"
+publish = "public/"
 command = "hugo"
 
 [context.production.environment]
