@@ -1,0 +1,30 @@
+theme = "hugo-theme-learn"
+languageCode = "en-us"
+title = "superluminar - Serverless Workshop"
+
+[params]
+editURL = "https://github.com/superluminar-io/sac-workshop-web/edit/master/content/"
+themeVariant = "blue"
+
+[outputs]
+home = [ "HTML", "RSS", "JSON"]
+
+[[menu.shortcuts]]
+name = "<i class='fas fa-link'></i> Additional material"
+url = "/links"
+weight = 5
+
+[[menu.shortcuts]]
+name = "<i class='fab fa-github'></i> Github repo"
+url = "https://github.com/superluminar-io/sac-workshop"
+weight = 10
+
+[[menu.shortcuts]]
+name = "<i class='fas fa-question-circle'></i> SAM docs"
+url = "https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md"
+weight = 20
+
+[[menu.shortcuts]]
+name = "<i class='far fa-copyright'></i> Impressum"
+url = "/impressum"
+weight = 30
