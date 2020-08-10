@@ -3,7 +3,7 @@ languageCode = "en-us"
 title = "superluminar - Serverless Workshop"
 
 [params]
-editURL = "https://github.com/superluminar-io/sac-workshop-web/edit/master/content/"
+editURL = "https://github.com/superluminar-io/libri-cdk/edit/master/content/"
 themeVariant = "blue"
 
 [outputs]
@@ -16,12 +16,12 @@ weight = 5
 
 [[menu.shortcuts]]
 name = "<i class='fab fa-github'></i> Github repo"
-url = "https://github.com/superluminar-io/sac-workshop"
+url = "https://github.com/superluminar-io/libri-cdk"
 weight = 10
 
 [[menu.shortcuts]]
-name = "<i class='fas fa-question-circle'></i> SAM docs"
-url = "https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md"
+name = "<i class='fas fa-question-circle'></i> AWS CDK docs"
+url = "https://docs.aws.amazon.com/cdk/api/latest/docs/aws-construct-library.html"
 weight = 20
 
 [[menu.shortcuts]]

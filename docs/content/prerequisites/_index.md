@@ -10,8 +10,11 @@ We recommend you create a dedicate IAM user following [this guide](https://docs.
 
 ## Required software
 
-Since we are using [AWS Cloud9](https://aws.amazon.com/cloud9/) in this workshop, you don't need any additional software
-except from an up-to-date web browser.
+First you will need a installation of [NodeJS](https://nodejs.org).
+Now install the AWS CDK with:
+```shell script
+npm install -g aws-cdk
+```
 
 ## Configure AWS access
 

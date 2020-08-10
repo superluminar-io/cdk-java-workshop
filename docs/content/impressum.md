@@ -4,8 +4,8 @@ title: "Impressum"
 
 ## Adresse
 superluminar GmbH<br>
-Hohenzollernring 138<br>
-22763 Hamburg<br>
+Brunnenhofstraße 2<br>
+22767 Hamburg<br>
 
 Amtsgericht Hamburg: HRB 149058<br>
 Umsatzsteuer-Identifikationsnummer: DE815731015<br>
@@ -20,7 +20,7 @@ Hendric Rüsch<br>
 Sönke Ruempler<br>
 
 ## Inhaltlich Verantwortlicher
-Till Kahlbrock
+Jan Brauer
 
 ## Haftungshinweis
 
