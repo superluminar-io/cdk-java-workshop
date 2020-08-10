@@ -39,7 +39,6 @@ class CreateURLHandlerTest {
         verify(client, times(1)).putItem(argument.capture());
         assertEquals("1vk6h2ayvbhbd", argument.getValue().item().get("id").s());
         assertEquals("https://libri.de", argument.getValue().item().get("url").s());
-
     }
 
     private Context getContext() {
