@@ -17,10 +17,10 @@ weight: 10
 - Extended the function to generate some log output and found it in *Cloudwatch Logs*
 - Took a look at the dashboards for your function
 
-# Setup
+## Setup
 First we want to create a new serverless project with Java. Then we want to convert it to use Gradle instead of Maven.
 
-## Bootstrap the project
+### Bootstrap the project
 
 ```sh
 # Create a new folder for your project:
@@ -60,7 +60,7 @@ Executing 'mvn package'
 ✅ All done!
 ```
 
-## Converting to Gradle
+### Converting to Gradle
 
 We want to use Gradle instead of Maven, so do the following:
 ```sh
@@ -107,11 +107,11 @@ application {
 
 Now delete the `pom.xml` file, you won't need it anymore.
 
-# Create your first Lambda function
+## Create your first Lambda function
 
 Now we will create our first Lambda function. We need to set up the Gradle structure, implement the handler, and wire it up with the CDK. 
 
-## Bootstrap
+### Bootstrap
 
 Create a Gradle project in a folder called `lambda`:
 
@@ -146,7 +146,7 @@ task buildZip(type: Zip) {
 build.dependsOn buildZip
 ```
 
-## Write some code
+### Write some code
 
 Create a class called `HelloWorldHandler`.
 Paste in the following:
@@ -171,15 +171,15 @@ public class HelloWorldHandler implements RequestHandler<APIGatewayProxyRequestE
 
 Try to compile it, it should work.
 
-## Write some test code
+### Write some test code
 
 For bonus points implement a unit test for the class above. Skip this if you are in a rush.
 
-## Wire it up with CDK
+### Wire it up with CDK
 
 We'll need to configure our project and write some more code
 
-### Setup the Gradle project
+#### Setup the Gradle project
 Navigate back to the top level project, and open `settings.gradle`.
 Paste the following:
 ```groovy
@@ -195,7 +195,7 @@ Now open `build.gradle` and add these dependencies:
     implementation project(':lambda') // Depend on our subproject, so it will always be rebuilt
 ```
 
-### Write the code
+#### Write the code
 
 Open the file `FooStack.java` (rename it if you want to) and paste the following:
 ```java
