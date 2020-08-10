@@ -6,45 +6,123 @@ weight: 10
 **In this Lab we will**:
 
 - Setup the development environment
-- Use [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-command-reference.html)
+- Use [AWS CDK CLI](https://docs.aws.amazon.com/cdk/latest/guide/cli.html)
 - Deploy a simple `hello-world` function
 - Find logs and metrics for the function
 
 **You completed this lab if you**:
 
 - Successfully deployed the `hello-world` function
-- Executed it once via the HTTP Endpoint (e.g using `curl`)
+- Executed it once via the HTTP endpoint (e.g using `curl`)
 - Extended the function to generate some log output and found it in *Cloudwatch Logs*
-- Took a look at the Dashboards for you function
+- Took a look at the dashboards for your function
 
-## Setup
+# Setup
+First we want to create a new serverless project with Java. Then we want to convert it to use Gradle instead of Maven.
 
-In order to setup the development environment in your AWS Account you have to log into the [AWS Console](https://console.aws.amazon.com/) via your
-web browser. Use the user and credentials you created earlier.
+## Bootstrap the project
 
-Now we have to do the following steps to setup our development environment:
+```sh
+# Create a new folder for your project:
+mkdir serverless-workshop
 
-### Create Cloud9 Environment
-- Open the [Cloud9 web interface](https://eu-central-1.console.aws.amazon.com/cloud9/home?region=eu-central-1#)
-- Create a new environment
-- Give it a name
-- Leave all other settings untouched
+# Change to the newly created directory
+cd serverless-workshop
 
-### Allocate more disk space
+# Now bootstrap it
+cdk init app --language java
+```
 
-By default, Cloud9 provisions 10 GiB of disk space for the IDE. In order to work with GO and install all dependencies, we need to allocate more disk space.
+If everything works as intended you should see output similar to this:
+```sh
+Applying project template app for java
+# Welcome to your CDK Java project!
 
-1. Open the [EC2 console](http://console.aws.amazon.com/ec2)
-2. On the left side, click on **Volumes**:
-  ![AWS EC2 Console](./ec2-console.png)
-3. Select the volume attached to the Cloud9 environment:
-  ![AWS EC2 Volume Selection](./ec2-volume-selection.png)
-4. Click on **Actions** and then on **Modify Volume**:
-  ![AWS EC2 Volume Actions Dropdown](./ec2-volume-modify.png)
-4. Change the size from **10 GiB** to **20 GiB**. After that, click on **Modify**:
-  ![AWS EC2 Volume Modify Modal](./ec2-volume-size.png)
-5. Wait until the change is applied. You can refreseh the page to see the latest status:
-  ![AWS EC2 Volume State Processing](./ec2-volume-state-processing.png)
+This is a blank project for Java development with CDK.
+
+The `cdk.json` file tells the CDK Toolkit how to execute your app.
+
+It is a [Maven](https://maven.apache.org/) based project, so you can open this project with any Maven compatible Java IDE to build and run tests.
+
+## Useful commands
+
+ * `mvn package`     compile and run tests
+ * `cdk ls`          list all stacks in the app
+ * `cdk synth`       emits the synthesized CloudFormation template
+ * `cdk deploy`      deploy this stack to your default AWS account/region
+ * `cdk diff`        compare deployed stack with current state
+ * `cdk docs`        open CDK documentation
+
+Enjoy!
+
+Initializing a new git repository...
+Executing 'mvn package'
+✅ All done!
+```
+
+## Converting to Gradle
+
+We want to use Gradle instead of Maven, so do the following:
+```sh
+# convert project to gradle
+gradle init
+```
+
+It should print something like:
+```
+Found a Maven build. Generate a Gradle build from this? (default: yes) [yes, no] yes
+
+
+> Task :init
+Maven to Gradle conversion is an incubating feature.
+Get more help with your project: https://docs.gradle.org/6.5.1/userguide/migrating_from_maven.html
+
+BUILD SUCCESSFUL in 4s
+2 actionable tasks: 2 executed
+```
+
+Open the file `cdk.json` and change it to:
+```shell script
+{
+  "app": "./gradlew build run",
+  "context": {
+    "@aws-cdk/core:enableStackNameDuplicates": "true",
+    "aws-cdk:enableDiffNoFail": "true"
+  }
+}
+```
+
+At the top of your `build.gradle` file, add the [application plugin](https://docs.gradle.org/current/userguide/application_plugin.html) and set the main class, it should look like this:
+```groovy
+plugins {
+    id 'application'
+    id 'java'
+    id 'maven-publish'
+}
+
+application {
+    mainClassName = 'com.myorg.FooApp'
+}
+```
+
+Now delete the `pom.xml` file, you won't need it anymore.
+
+# Create your first Lambda function
+
+## Bootstrap
+```sh
+# Create a folder to hold the code for the Lambda function
+mkdir lambda
+cd lambda
+# Bootstrap 
+gradle init --type java-library --dsl groovy --test-framework junit-jupiter --project-name lambda --package com.example
+```
+
+## Add dependencies
+
+## Write some code
+
+## Wire it up with CDK
 
 ### Bootstrap
 - Go back to your Cloud9 environment
