@@ -109,7 +109,12 @@ Now delete the `pom.xml` file, you won't need it anymore.
 
 # Create your first Lambda function
 
+Now we will create our first Lambda function. We need to set up the Gradle structure, implement the handler, and wire it up with the CDK. 
+
 ## Bootstrap
+
+Create a Gradle project in a folder called `lambda`:
+
 ```sh
 # Create a folder to hold the code for the Lambda function
 mkdir lambda
@@ -118,48 +123,141 @@ cd lambda
 gradle init --type java-library --dsl groovy --test-framework junit-jupiter --project-name lambda --package com.example
 ```
 
-## Add dependencies
+We need some dependencies, paste these into `build.gradle`:
+
+```groovy
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
+    implementation 'com.amazonaws:aws-lambda-java-events:2.2.9'
+    runtimeOnly 'com.amazonaws:aws-lambda-java-log4j2:1.2.0'
+```
+
+AWS Lambda expects a [deployment package](https://docs.aws.amazon.com/lambda/latest/dg/java-package.html) which is a ZIP file with the Java classes plus libraries, so paste this at
+the bottom of `build.gradle`:
+```groovy
+
+task buildZip(type: Zip) {
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtimeClasspath
+    }
+}
+
+build.dependsOn buildZip
+```
 
 ## Write some code
 
+Create a class called `HelloWorldHandler`.
+Paste in the following:
+```java
+package com.example;
+
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+
+public class HelloWorldHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
+        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
+        response.setStatusCode(200);
+        response.setBody("Hello World!");
+        return response;
+    }
+}
+```
+
+Try to compile it, it should work.
+
+## Write some test code
+
+For bonus points implement a unit test for the class above. Skip this if you are in a rush.
+
 ## Wire it up with CDK
 
-### Bootstrap
-- Go back to your Cloud9 environment
-- Open the terminal window and type:
-- `git clone --single-branch --branch lab0 https://github.com/superluminar-io/serverless-workshop-go.git`
-- `cd serverless-workshop-go`
-- `./bootstrap.sh`
+We'll need to configure our project and write some more code
 
-### Test
-- `sam --version`
-- `aws sts get-caller-identity`
-
-### SAM
-
-In this step, we are going to setup SAM and deploy the infrastructure for the first time. SAM will create a `samconfig.toml` file to persist your choices.
-
-```sh
-# Compile GO files
-$ make build
-
-# Configure SAM and deploy the infrastructure
-$ sam deploy --guided
-
-  Configuring SAM deploy
-  ======================
-
-  Looking for samconfig.toml :  Not found
-
-  Setting default arguments for 'sam deploy'
-  =========================================
-  Stack Name [sam-app]: UrlShortener 
-  AWS Region [us-east-1]: eu-central-1
-  Confirm changes before deploy [y/N]: Y
-  Allow SAM CLI IAM role creation [Y/n]: Y
-  HelloWorldFunction may not have authorization defined, Is this okay? [y/N]: Y
-  Save arguments to samconfig.toml [Y/n]: Y
+### Setup the Gradle project
+Navigate back to the top level project, and open `settings.gradle`.
+Paste the following:
+```groovy
+include 'lambda'
 ```
+
+Now open `build.gradle` and add these dependencies:
+```groovy
+    implementation 'software.amazon.awscdk:core:1.55.0'
+    implementation 'software.amazon.awscdk:lambda:1.55.0'
+    implementation 'software.amazon.awscdk:apigatewayv2:1.55.0'
+
+    implementation project(':lambda') // Depend on our subproject, so it will always be rebuilt
+```
+
+### Write the code
+
+Open the file `FooStack.java` (rename it if you want to) and paste the following:
+```java
+package de.libri;
+
+import software.amazon.awscdk.core.CfnOutput;
+import software.amazon.awscdk.core.Construct;
+import software.amazon.awscdk.core.Stack;
+import software.amazon.awscdk.core.StackProps;
+import software.amazon.awscdk.services.apigatewayv2.AddRoutesOptions;
+import software.amazon.awscdk.services.apigatewayv2.HttpMethod;
+import software.amazon.awscdk.services.apigatewayv2.LambdaProxyIntegration;
+import software.amazon.awscdk.services.lambda.Code;
+import software.amazon.awscdk.services.lambda.Function;
+import software.amazon.awscdk.services.lambda.Runtime;
+import software.amazon.awscdk.services.apigatewayv2.HttpApi;
+
+import java.util.Arrays;
+
+public class FooStack extends Stack {
+    public FooStack(final Construct scope, final String id) {
+        this(scope, id, null);
+    }
+
+    public FooStack(final Construct scope, final String id, final StackProps props) {
+        super(scope, id, props);
+
+        // Create the Lambda function
+        Function myFunc = Function.Builder.create(this, "helloWorld")
+            .code(Code.fromAsset(System.getProperty("user.dir") + "/lambda-func/build/distributions/lambda-func-1.0-SNAPSHOT.zip"))
+            .handler("com.myorg.HelloWorldHandler")
+            .runtime(Runtime.JAVA_8)
+            .build();
+
+        // Wire up the Lambda function to be accessible at path '/hello-world'
+        LambdaProxyIntegration lambdaProxyIntegration = LambdaProxyIntegration.Builder.create().handler(myFunc).build();
+        HttpApi httpApi = HttpApi.Builder.create(this,"HttpApi").build();
+        httpApi.addRoutes(AddRoutesOptions.builder()
+                .path("/hello-world")
+                .methods(Arrays.asList(HttpMethod.GET))
+                .integration(lambdaProxyIntegration)
+                .build()
+        );
+
+        // Output the URL for later consumption
+        CfnOutput.Builder.create(this, "URL").value(httpApi.getUrl() + "hello-world").build();
+    }
+}
+```
+
+## Deploy it using CDK
+
+Open your shell, make sure you have your AWS credentials configured.
+Now run:
+```sh
+cdk synth
+cdk deploy
+```
+
+## Call your function using curl
+
+Now use the output from above and call your HTTP handler, it should print "Hello world!".
 
 ## CloudFormation
 
