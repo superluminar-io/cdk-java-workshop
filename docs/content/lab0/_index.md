@@ -227,7 +227,7 @@ public class FooStack extends Stack {
         // Create the Lambda function
         Function myFunc = Function.Builder.create(this, "helloWorld")
             .code(Code.fromAsset(System.getProperty("user.dir") + "/lambda/build/distributions/lambda-1.0-SNAPSHOT.zip"))
-            .handler("com.myorg.HelloWorldHandler")
+            .handler("com.example.HelloWorldHandler")
             .runtime(Runtime.JAVA_8)
             .build();
 
