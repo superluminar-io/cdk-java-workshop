@@ -200,7 +200,7 @@ Now open `build.gradle` and add these dependencies:
 
 Open the file `FooStack.java` (rename it if you want to) and paste the following:
 ```java
-package de.libri;
+package com.myorg;
 
 import software.amazon.awscdk.core.CfnOutput;
 import software.amazon.awscdk.core.Construct;
