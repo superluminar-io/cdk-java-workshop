@@ -41,7 +41,7 @@ public class ServerlessWorkshopStack extends Stack {
             .build();
         LambdaProxyIntegration helloWorldIntegration = LambdaProxyIntegration.Builder.create().handler(helloWorld).build();
         Function createUrl = Function.Builder.create(this, "createUrl")
-            .code(Code.fromAsset(System.getProperty("user.dir") + "/lambda-func/build/distributions/lambda-func-1.0-SNAPSHOT.zip"))
+            .code(Code.fromAsset(System.getProperty("user.dir") + "/lambda/build/distributions/lambda.zip"))
             .handler("de.libri.CreateURLHandler")
             .runtime(Runtime.JAVA_8)
             .memorySize(512)
@@ -50,7 +50,7 @@ public class ServerlessWorkshopStack extends Stack {
             .build();
         LambdaProxyIntegration createUrlIntegration = LambdaProxyIntegration.Builder.create().handler(createUrl).build();
         Function getUrl = Function.Builder.create(this, "getUrl")
-                .code(Code.fromAsset(System.getProperty("user.dir") + "/lambda-func/build/distributions/lambda-func-1.0-SNAPSHOT.zip"))
+                .code(Code.fromAsset(System.getProperty("user.dir") + "/lambda/build/distributions/lambda.zip"))
                 .handler("de.libri.GetURLHandler")
                 .runtime(Runtime.JAVA_8)
                 .memorySize(512)
