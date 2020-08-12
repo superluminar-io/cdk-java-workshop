@@ -17,14 +17,12 @@ Make sure, that you are able to login into the [AWS Console](https://console.aws
 First you will need a installation of [NodeJS](https://nodejs.org).
 Now install the AWS CDK with:
 ```shell script
-npm install -g aws-cdk
+npm install -g aws-cdk@1.57
 ```
 
 ## Bootstrap CDK for your AWS Account
 
-{{% notice info %}}
 This needs to be done only once per AWS Account (co-ordinate by yourselves who is going to do this):
-{{% /notice %}}
 ```shell script
 cdk bootstrap <aws-account-id>/eu-central-1
 ```
