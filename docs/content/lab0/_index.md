@@ -92,7 +92,7 @@ Open the file `cdk.json` and change it to:
 }
 ```
 
-At the top of your `build.gradle` file, add the [application plugin](https://docs.gradle.org/current/userguide/application_plugin.html) and set the main class, it should look like this:
+At the top of your `build.gradle` file, add the [application plugin](https://docs.gradle.org/current/userguide/application_plugin.html) and set the main class. Also fix the Maven repo URL. It should look like this:
 ```groovy
 plugins {
     id 'application'
@@ -101,7 +101,14 @@ plugins {
 }
 
 application {
-    mainClassName = 'com.myorg.FooApp'
+    mainClassName = 'com.myorg.ServerlessWorkshopApp'
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url = uri('https://repo.maven.apache.org/maven2')
+    }
 }
 ```
 
