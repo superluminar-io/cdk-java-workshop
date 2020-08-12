@@ -210,7 +210,7 @@ Now open `build.gradle` and add these dependencies:
 
 #### Write the code
 
-Open the file `ServerlessWorkshopStack.java` (rename it if you want to) and paste the following:
+Open the file `ServerlessWorkshopStack.java` and paste the following:
 ```java
 package com.myorg;
 
@@ -258,6 +258,14 @@ public class ServerlessWorkshopStack extends Stack {
     }
 }
 ```
+
+#### Give the stack a unique name
+
+Open the file `ServerlessWorkshopApp.java` and change the string literal in the following line to something unique:
+```java
+        new ServerlessWorkshopStack(app, "ServerlessWorkshopStackUniqueSuffix");
+```
+This will ensure that you don't interfere with the other workshop participants.
 
 ## Deploy it using CDK
 
