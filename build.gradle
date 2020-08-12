@@ -19,11 +19,11 @@ repositories {
 }
 
 dependencies {
-    implementation 'software.amazon.awscdk:core:1.55.0'
-    implementation 'software.amazon.awscdk:s3:1.55.0'
-    implementation 'software.amazon.awscdk:lambda:1.55.0'
-    implementation 'software.amazon.awscdk:dynamodb:1.55.0'
-    implementation 'software.amazon.awscdk:apigatewayv2:1.55.0'
+    implementation 'software.amazon.awscdk:core:1.57.0'
+    implementation 'software.amazon.awscdk:s3:1.57.0'
+    implementation 'software.amazon.awscdk:lambda:1.57.0'
+    implementation 'software.amazon.awscdk:dynamodb:1.57.0'
+    implementation 'software.amazon.awscdk:apigatewayv2:1.57.0'
     testImplementation 'junit:junit:4.12'
 
     implementation project(':lambda')
