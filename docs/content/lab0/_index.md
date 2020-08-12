@@ -259,6 +259,15 @@ public class ServerlessWorkshopStack extends Stack {
 }
 ```
 
+#### Delete the test class
+
+For the sake of our tutorial remove the test class:
+```shell script
+rm src/test/java/com/myorg/ServerlessWorkTest.java
+```
+
+Maybe we will fix this later.
+
 ## Deploy it using CDK
 
 Open your shell, make sure you have your AWS credentials configured.
