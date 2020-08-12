@@ -29,7 +29,7 @@ dependencies {
     implementation project(':lambda')
 }
 
-group = 'de.libri'
+group = 'com.myorg'
 version = '0.1'
 sourceCompatibility = '1.8'
 
