@@ -8,7 +8,7 @@ plugins {
 }
 
 application {
-    mainClassName = 'de.libri.LibriCdkApp'
+    mainClassName = 'com.myorg.ServerlessWorkshopApp'
 }
 
 repositories {
@@ -26,7 +26,7 @@ dependencies {
     implementation 'software.amazon.awscdk:apigatewayv2:1.55.0'
     testImplementation 'junit:junit:4.12'
 
-    implementation project(':lambda-func')
+    implementation project(':lambda')
 }
 
 group = 'de.libri'

@@ -1,4 +1,4 @@
-package de.libri;
+package com.myorg;
 
 import software.amazon.awscdk.core.*;
 import software.amazon.awscdk.services.apigatewayv2.AddRoutesOptions;
@@ -17,12 +17,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LibriCdkStack extends Stack {
-    public LibriCdkStack(final Construct scope, final String id) {
+public class ServerlessWorkshopStack extends Stack {
+    public ServerlessWorkshopStack(final Construct scope, final String id) {
         this(scope, id, null);
     }
 
-    public LibriCdkStack(final Construct scope, final String id, final StackProps props) {
+    public ServerlessWorkshopStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
 
         // Create DynamoDB table
@@ -35,7 +35,7 @@ public class LibriCdkStack extends Stack {
 
         // Create the Lambda functions
         Function helloWorld = Function.Builder.create(this, "helloWorld")
-            .code(Code.fromAsset(System.getProperty("user.dir") + "/lambda-func/build/distributions/lambda-func-1.0-SNAPSHOT.zip"))
+            .code(Code.fromAsset(System.getProperty("user.dir") + "/lambda/build/distributions/lambda.zip"))
             .handler("de.libri.HelloWorldHandler")
             .runtime(Runtime.JAVA_8)
             .build();

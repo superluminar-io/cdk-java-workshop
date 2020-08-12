@@ -1,4 +1,4 @@
-package de.libri;
+package com.myorg;
 
 import org.junit.Ignore;
 import software.amazon.awscdk.core.App;
@@ -19,7 +19,7 @@ public class LibriCdkTest {
     @Ignore
     public void testStack() throws IOException {
         App app = new App();
-        LibriCdkStack stack = new LibriCdkStack(app, "test");
+        ServerlessWorkshopStack stack = new ServerlessWorkshopStack(app, "test");
 
         // synthesize the stack to a CloudFormation template and compare against
         // a checked-in JSON file.

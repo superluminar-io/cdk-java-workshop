@@ -1,12 +1,12 @@
-package de.libri;
+package com.myorg;
 
 import software.amazon.awscdk.core.App;
 
-public class LibriCdkApp {
+public class ServerlessWorkshopApp {
     public static void main(final String[] args) {
         App app = new App();
 
-        new LibriCdkStack(app, "LibriCdkStack");
+        new ServerlessWorkshopStack(app, "ServerlessWorkshopCdkStack");
 
         app.synth();
     }
