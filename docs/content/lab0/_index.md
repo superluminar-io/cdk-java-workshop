@@ -127,10 +127,10 @@ Create a Gradle project in a folder called `lambda`:
 mkdir lambda
 cd lambda
 # Bootstrap 
-gradle init --type java-library --dsl groovy --test-framework junit-jupiter --project-name lambda --package com.example
+gradle init --type java-library --dsl groovy --test-framework junit-jupiter --project-name lambda --package com.myorg
 ```
 
-We need some dependencies, paste these into `build.gradle`:
+We need some dependencies, paste these into `dependencies` section in the `build.gradle` file:
 
 ```groovy
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
@@ -153,12 +153,17 @@ task buildZip(type: Zip) {
 build.dependsOn buildZip
 ```
 
+Also set the source compatibility to be `1.8`:
+```groovy
+sourceCompatibility = '1.8'
+```
+
 ### Write some code
 
 Create a class called `HelloWorldHandler`.
 Paste in the following:
 ```java
-package com.example;
+package com.myorg;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -205,7 +210,7 @@ Now open `build.gradle` and add these dependencies:
 
 #### Write the code
 
-Open the file `FooStack.java` (rename it if you want to) and paste the following:
+Open the file `ServerlessWorkshopStack.java` (rename it if you want to) and paste the following:
 ```java
 package com.myorg;
 
@@ -223,12 +228,12 @@ import software.amazon.awscdk.services.apigatewayv2.HttpApi;
 
 import java.util.Arrays;
 
-public class FooStack extends Stack {
-    public FooStack(final Construct scope, final String id) {
+public class ServerlessWorkshopStack extends Stack {
+    public ServerlessWorkshopStack(final Construct scope, final String id) {
         this(scope, id, null);
     }
 
-    public FooStack(final Construct scope, final String id, final StackProps props) {
+    public ServerlessWorkshopStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
 
         // Create the Lambda function
