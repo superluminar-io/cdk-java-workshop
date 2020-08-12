@@ -13,7 +13,7 @@ We recommend you create a dedicate IAM user following [this guide](https://docs.
 First you will need a installation of [NodeJS](https://nodejs.org).
 Now install the AWS CDK with:
 ```shell script
-npm install -g aws-cdk
+npm install -g aws-cdk@1.57
 ```
 
 ## Configure AWS access

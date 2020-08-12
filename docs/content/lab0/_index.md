@@ -201,9 +201,9 @@ include 'lambda'
 
 Now open `build.gradle` and add these dependencies:
 ```groovy
-    implementation 'software.amazon.awscdk:core:1.56.0' // Version must match with the version of aws-cdk
-    implementation 'software.amazon.awscdk:lambda:1.56.0'
-    implementation 'software.amazon.awscdk:apigatewayv2:1.56.0'
+    implementation 'software.amazon.awscdk:core:1.57.0' // Version must match with the version of aws-cdk
+    implementation 'software.amazon.awscdk:lambda:1.57.0'
+    implementation 'software.amazon.awscdk:apigatewayv2:1.57.0'
 
     implementation project(':lambda') // Depend on our subproject, so it will always be rebuilt
 ```
