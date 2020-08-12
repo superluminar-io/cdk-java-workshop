@@ -27,7 +27,6 @@ public class LibriCdkStack extends Stack {
 
         // Create DynamoDB table
         Table table = Table.Builder.create(this, "dynamoDbTable")
-            .tableName("short-urls")
             .billingMode(BillingMode.PAY_PER_REQUEST)
             .partitionKey(Attribute.builder().name("id").type(AttributeType.STRING).build())
             .build();
