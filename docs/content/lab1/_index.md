@@ -241,7 +241,7 @@ public class ServerlessWorkshopStack extends Stack {
             .code(Code.fromAsset(System.getProperty("user.dir") + "/lambda/build/distributions/lambda.zip"))
             .handler("com.example.HelloWorldHandler")
             .runtime(Runtime.JAVA_8)
-	    .memorySize(512) // Java loves memory
+            .memorySize(512) // Java loves memory
             .timeout(Duration.seconds(10)) // Class loading can take some time
             .build();
 
