@@ -3,7 +3,7 @@ languageCode = "en-us"
 title = "superluminar - Serverless Workshop"
 
 [params]
-editURL = "https://github.com/superluminar-io/libri-cdk/edit/master/content/"
+editURL = "https://github.com/superluminar-io/cdk-java-workshop/edit/master/content/"
 themeVariant = "blue"
 
 [outputs]
@@ -16,7 +16,7 @@ weight = 5
 
 [[menu.shortcuts]]
 name = "<i class='fab fa-github'></i> Github repo"
-url = "https://github.com/superluminar-io/libri-cdk"
+url = "https://github.com/superluminar-io/cdk-java-workshop"
 weight = 10
 
 [[menu.shortcuts]]

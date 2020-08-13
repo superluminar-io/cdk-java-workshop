@@ -105,4 +105,4 @@ Use [path parameters](https://docs.aws.amazon.com/apigateway/latest/developergui
 Generate a short unique ID for the URL with a [fancy algorithm](https://github.com/snimavat/shortid).
 
 ## Cheating
-You can find an example implementation here: https://github.com/superluminar-io/libri-cdk/compare/lab0..lab1?expand=1
+You can find an example implementation here: https://github.com/superluminar-io/cdk-java-workshop/compare/lab0..lab1?expand=1
