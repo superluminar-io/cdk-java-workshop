@@ -1,108 +1,301 @@
 ---
-title: Lab 1 - URL Shortener
-weight: 15
+title: Lab 1 - Hello World
+weight: 10
 ---
 
-**In this Lab we will**:
+**In this lab we will**:
 
-- Create a first basic version of the url shortener
-- Learn how to store data in AWS DynamoDB using the [AWS Go SDK](https://aws.amazon.com/sdk-for-go/)
-- See some more advanced features of AWS SAM Templates
+- Setup the development environment
+- Use [AWS CDK CLI](https://docs.aws.amazon.com/cdk/latest/guide/cli.html)
+- Deploy a simple `hello-world` function
+- Find logs and metrics for the function
 
 **You completed this lab if you**:
 
-- Shortened at least one URL
-- Typed the shortened URL into your browser and got redirected properly
+- Successfully deployed the `hello-world` function
+- Executed it once via the HTTP endpoint (e.g using `curl`)
+- Extended the function to generate some log output and found it in *Cloudwatch Logs*
+- Took a look at the dashboards for your function
 
-## Overview
+## Setup
+First we want to create a new serverless project with Java. Then we want to convert it to use Gradle instead of Maven.
 
-At the end of this lab the url shortener will consist of the following components.
+### Bootstrap the project
 
-![Diagram Lab 1](./Lab1.png)
+```sh
+# Create a new folder for your project:
+mkdir serverless-workshop
 
-## Implement a URL shortener using [DynamoDB](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html) for storage
+# Change to the newly created directory
+cd serverless-workshop
 
-- Implement one function to create a shortened URL via HTTP POST
-- Implement one function to retrieve the full URL via HTTP GET issuing a `302 Found` redirect
-
-Below you find an example interaction with your service:
-
-```
-$ curl -v -XPOST -d '{"url": "https://superluminar.io"}' https://$ENDPOINT
-
-> POST / HTTP/1.1
-< HTTP/1.1 Created 201
-{"short_url": "https://$ENDPOINT/${short-id}"}
-
-$ curl -v https://$ENDPOINT/${short-id}
-
-> GET /${short-id} HTTP/1.1
-< HTTP/1.1 302 Found
-< Location: https://superluminar.io
+# Now bootstrap it
+cdk init app --language java
 ```
 
-{{<mermaid>}}
-sequenceDiagram
-    participant Browser
-    participant APIGateway
-    participant Lambda
-    participant DynamoDB
-    Browser->>APIGateway: POST /
-    APIGateway->>Lambda: Invoke
-    Lambda->>DynamoDB: PutItem
-    DynamoDB-->>Lambda: OK
-    Lambda-->>Browser: HTTP 201 Created {"short_url": "https://foo/bar"}
+If everything works as intended you should see output similar to this:
+```sh
+Applying project template app for java
+# Welcome to your CDK Java project!
 
-    Browser->>APIGateway: GET /bar
-    APIGateway->>Lambda: Invoke
-    Lambda->>DynamoDB: GetItem
-    DynamoDB-->>Lambda: OK
-    Lambda-->>Browser: HTTP 302 Location: https://superluminar.io
-{{< /mermaid >}}
+This is a blank project for Java development with CDK.
 
-## Hints
+The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
-### Create a DynamoDB table
-Make an addition to your CDK stack to define the DynamoDB table resource.
-You need to add the DynamoDB package dependency in the `build.gradle` file.
-Add the something like this to `ServerlessWorkshopStack.java`
+It is a [Maven](https://maven.apache.org/) based project, so you can open this project with any Maven compatible Java IDE to build and run tests.
+
+## Useful commands
+
+ * `mvn package`     compile and run tests
+ * `cdk ls`          list all stacks in the app
+ * `cdk synth`       emits the synthesized CloudFormation template
+ * `cdk deploy`      deploy this stack to your default AWS account/region
+ * `cdk diff`        compare deployed stack with current state
+ * `cdk docs`        open CDK documentation
+
+Enjoy!
+
+Initializing a new git repository...
+Executing 'mvn package'
+✅ All done!
+```
+
+### Converting to Gradle
+
+We want to use Gradle instead of Maven, so do the following:
+```sh
+# convert project to gradle
+gradle init
+```
+
+It should print something like:
+```
+Found a Maven build. Generate a Gradle build from this? (default: yes) [yes, no] yes
+
+
+> Task :init
+Maven to Gradle conversion is an incubating feature.
+Get more help with your project: https://docs.gradle.org/6.5.1/userguide/migrating_from_maven.html
+
+BUILD SUCCESSFUL in 4s
+2 actionable tasks: 2 executed
+```
+
+Open the file `cdk.json` and change it to:
+```shell script
+{
+  "app": "./gradlew build run",
+  "context": {
+    "@aws-cdk/core:enableStackNameDuplicates": "true",
+    "aws-cdk:enableDiffNoFail": "true"
+  }
+}
+```
+
+At the top of your `build.gradle` file, add the [application plugin](https://docs.gradle.org/current/userguide/application_plugin.html) and set the main class. Also fix the Maven repo URL. It should look like this:
+```groovy
+plugins {
+    id 'application'
+    id 'java'
+    id 'maven-publish'
+}
+
+application {
+    mainClassName = 'com.myorg.ServerlessWorkshopApp'
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url = uri('https://repo.maven.apache.org/maven2')
+    }
+}
+```
+
+Now delete the `pom.xml` file, you won't need it anymore.
+
+## Create your first Lambda function
+
+Now we will create our first Lambda function. We need to set up the Gradle structure, implement the handler, and wire it up with the CDK. 
+
+### Bootstrap
+
+Create a Gradle project in a folder called `lambda`:
+
+```sh
+# Create a folder to hold the code for the Lambda function
+mkdir lambda
+cd lambda
+# Bootstrap 
+gradle init --type java-library --dsl groovy --test-framework junit-jupiter --project-name lambda --package com.myorg
+```
+
+We need some dependencies, paste these into `dependencies` section in the `build.gradle` file:
+
+```groovy
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
+    implementation 'com.amazonaws:aws-lambda-java-events:2.2.9'
+    runtimeOnly 'com.amazonaws:aws-lambda-java-log4j2:1.2.0'
+```
+
+AWS Lambda expects a [deployment package](https://docs.aws.amazon.com/lambda/latest/dg/java-package.html) which is a ZIP file with the Java classes plus libraries, so paste this at
+the bottom of `build.gradle`:
+```groovy
+
+task buildZip(type: Zip) {
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtimeClasspath
+    }
+}
+
+build.dependsOn buildZip
+```
+
+Also set the source compatibility to be `1.8`:
+```groovy
+sourceCompatibility = '1.8'
+```
+
+### Write some code
+
+Create a class called `HelloWorldHandler`.
+Paste in the following:
 ```java
-// Create DynamoDB table
-Table table = Table.Builder.create(this, "dynamoDbTable")
-    .partitionKey(Attribute.builder().name("id").type(AttributeType.STRING).build())
-    .build();
+package com.myorg;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+
+public class HelloWorldHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
+        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
+        response.setStatusCode(200);
+        response.setBody("Hello World!");
+        return response;
+    }
+}
 ```
-For an overview of the DynamoDB package, [see here](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-dynamodb-readme.html).
 
-### Give your Lambda functions permissions to access the DynamoDB table
+Try to compile it, it should work.
 
-Take a look at the [`grantReadData`](https://docs.aws.amazon.com/cdk/api/latest/java/software/amazon/awscdk/services/dynamodb/Table.html#grantReadData-software.amazon.awscdk.services.iam.IGrantable-) method on your `Table` class.
+### Write some test code
 
-### Inject the DynamoDB table via environment variables
+For bonus points implement a unit test for the class above. Skip this if you are in a rush.
 
-Lambda functions have access to their [environment](https://docs.aws.amazon.com/cdk/api/latest/java/software/amazon/awscdk/services/lambda/Function.Builder.html#environment-java.util.Map-).
-Define a variable and pass in the table name.
+### Wire it up with CDK
 
-### Use the AWS SDK to query DynamoDB
+We'll need to configure our project and write some more code
 
-Use the [AWS SDK](https://docs.aws.amazon.com/sdk-for-java/v2/developer-guide/setup-project-gradle.html) to read and write data from DynamoDB.
-Setup a client like this:
+#### Setup the Gradle project
+Navigate back to the top level project, and open `settings.gradle`.
+Paste the following:
+```groovy
+include 'lambda'
+```
+
+Now open `build.gradle` and add these dependencies:
+```groovy
+    implementation 'software.amazon.awscdk:core:1.57.0' // Version must match with the version of aws-cdk
+    implementation 'software.amazon.awscdk:lambda:1.57.0'
+    implementation 'software.amazon.awscdk:apigatewayv2:1.57.0'
+
+    implementation project(':lambda') // Depend on our subproject, so it will always be rebuilt
+```
+
+#### Write the code
+
+Open the file `ServerlessWorkshopStack.java` and paste the following:
 ```java
-DynamoDBClient client = DynamoDbClient.builder()
-    .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
-    .region(Region.of(System.getenv(SdkSystemSetting.AWS_REGION.environmentVariable())))
-    .build();
+package com.myorg;
+
+import software.amazon.awscdk.core.CfnOutput;
+import software.amazon.awscdk.core.Construct;
+import software.amazon.awscdk.core.Stack;
+import software.amazon.awscdk.core.StackProps;
+import software.amazon.awscdk.services.apigatewayv2.AddRoutesOptions;
+import software.amazon.awscdk.services.apigatewayv2.HttpMethod;
+import software.amazon.awscdk.services.apigatewayv2.LambdaProxyIntegration;
+import software.amazon.awscdk.services.lambda.Code;
+import software.amazon.awscdk.services.lambda.Function;
+import software.amazon.awscdk.services.lambda.Runtime;
+import software.amazon.awscdk.services.apigatewayv2.HttpApi;
+
+import java.util.Arrays;
+
+public class ServerlessWorkshopStack extends Stack {
+    public ServerlessWorkshopStack(final Construct scope, final String id) {
+        this(scope, id, null);
+    }
+
+    public ServerlessWorkshopStack(final Construct scope, final String id, final StackProps props) {
+        super(scope, id, props);
+
+        // Create the Lambda function
+        Function myFunc = Function.Builder.create(this, "helloWorld")
+            .code(Code.fromAsset(System.getProperty("user.dir") + "/lambda/build/distributions/lambda.zip"))
+            .handler("com.example.HelloWorldHandler")
+            .runtime(Runtime.JAVA_8)
+	    .memorySize(512) // Java loves memory
+            .timeout(Duration.seconds(10)) // Class loading can take some time
+            .build();
+
+        // Wire up the Lambda function to be accessible at path '/hello-world'
+        LambdaProxyIntegration lambdaProxyIntegration = LambdaProxyIntegration.Builder.create().handler(myFunc).build();
+        HttpApi httpApi = HttpApi.Builder.create(this,"HttpApi").build();
+        httpApi.addRoutes(AddRoutesOptions.builder()
+                .path("/hello-world")
+                .methods(Arrays.asList(HttpMethod.GET))
+                .integration(lambdaProxyIntegration)
+                .build()
+        );
+
+        // Output the URL for later consumption
+        CfnOutput.Builder.create(this, "URL").value(httpApi.getUrl() + "hello-world").build();
+    }
+}
 ```
 
-Use the methods `getItem`/`putItem`.
+#### Give the stack a unique name
 
-### Use path parameters
+Open the file `ServerlessWorkshopApp.java` and change the string literal in the following line to something unique:
+```java
+        new ServerlessWorkshopStack(app, "ServerlessWorkshopStackUniqueSuffix");
+```
+This will ensure that you don't interfere with the other workshop participants.
 
-Use [path parameters](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-routes.html#http-api-routes-path-variables) to inject the path value into your Lambda function. See `APIGatewayProxyRequestEvent.getPathParameters`.  
+#### Delete the test class
 
-### Generate a short unique ID
+For the sake of our tutorial remove the test class:
+```shell script
+rm src/test/java/com/myorg/ServerlessWorkTest.java
+```
 
-Generate a short unique ID for the URL with a [fancy algorithm](https://github.com/snimavat/shortid).
+Maybe we will fix this later.
 
-## Cheating
-You can find an example implementation here: https://github.com/superluminar-io/cdk-java-workshop/compare/lab0..lab1?expand=1
+## Deploy it using CDK
+
+Open your shell, make sure you have your AWS credentials configured.
+Now run:
+```sh
+cdk synth
+cdk deploy
+```
+
+## Call your function using curl
+
+Now use the output from above and call your HTTP handler, it should print "Hello world!".
+
+## CloudFormation
+
+If you check out the [CloudFormation console](https://eu-central-1.console.aws.amazon.com/cloudformation/home?region=eu-central-1) you will notice a new stack with the name you just defined in the guided deployment. CloudFormation is essentially a tool to provision, maintain and remove infrastructure in AWS. SAM uses CloudFormation under the hood to deploy the infrastrucutre we describe in this workshop.
+
+Try to figure out:
+
+- Which resources did we just deploy?
+- What are outputs and why are they helpful?

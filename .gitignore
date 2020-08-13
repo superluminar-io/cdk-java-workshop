@@ -64,3 +64,5 @@ gradle-app.setting
 
 # Exclude hugo generated files
 docs/public/
+
+docs/hugo

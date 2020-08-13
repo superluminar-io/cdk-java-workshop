@@ -1,98 +1,108 @@
 ---
-title: Lab 2 - A Basic Frontend
-weight: 20
+title: Lab 2 - URL Shortener
+weight: 15
 ---
 
 **In this Lab we will**:
 
-- Deploy a Single Page App to S3
-- Learn a thing or two about API Gateway
-- Survive CORS Hell ;)
+- Create a first basic version of the url shortener
+- Learn how to store data in AWS DynamoDB using the [AWS Go SDK](https://aws.amazon.com/sdk-for-go/)
+- See some more advanced features of AWS SAM Templates
 
 **You completed this lab if you**:
 
-- Deployed the Frontend App manually via Make
-- Can shorten URLs through your browser
+- Shortened at least one URL
+- Typed the shortened URL into your browser and got redirected properly
 
 ## Overview
 
 At the end of this lab the url shortener will consist of the following components.
 
-![Diagram Lab 2](./Lab2.png)
+![Diagram Lab 1](./Lab1.png)
 
+## Implement a URL shortener using [DynamoDB](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html) for storage
 
-## The Frontend App
+- Implement one function to create a shortened URL via HTTP POST
+- Implement one function to retrieve the full URL via HTTP GET issuing a `302 Found` redirect
 
-We prepared a small React App (via [react-create-app](https://github.com/facebook/create-react-app)) that you can find 
-here on [github.com](https://github.com/superluminar-io/sac-workshop-fe).
+Below you find an example interaction with your service:
 
-For convenience reasons we recommend that you add the following targets to your `Makefile`
+```
+$ curl -v -XPOST -d '{"url": "https://superluminar.io"}' https://$ENDPOINT
 
-1. Create a S3 bucket for hosting the web app
+> POST / HTTP/1.1
+< HTTP/1.1 Created 201
+{"short_url": "https://$ENDPOINT/${short-id}"}
 
-```makefile
-AWS_REGION ?= eu-central-1
-FE_REPO_NAME := serverless-workshop-fe
+$ curl -v https://$ENDPOINT/${short-id}
 
-fe-bucket: guard-FE_BUCKET_NAME
-	@ if [ `aws s3 ls | grep -e ' $(FE_BUCKET_NAME)$$' | wc -l` -eq 1 ]; then \
-		echo "Bucket exists"; \
-	else \
-		aws s3 mb s3://$(FE_BUCKET_NAME) --region $(AWS_REGION); \
-	fi
+> GET /${short-id} HTTP/1.1
+< HTTP/1.1 302 Found
+< Location: https://superluminar.io
 ```
 
-2. Fetch the initial version of the app from github
+{{<mermaid>}}
+sequenceDiagram
+    participant Browser
+    participant APIGateway
+    participant Lambda
+    participant DynamoDB
+    Browser->>APIGateway: POST /
+    APIGateway->>Lambda: Invoke
+    Lambda->>DynamoDB: PutItem
+    DynamoDB-->>Lambda: OK
+    Lambda-->>Browser: HTTP 201 Created {"short_url": "https://foo/bar"}
 
-```makefile
-fetch-frontend:
-	rm -rf frontend
-	wget https://github.com/superluminar-io/$(FE_REPO_NAME)/archive/master.zip -O master.zip
-	unzip master.zip
-	rm -f master.zip
-	mv $(FE_REPO_NAME)-master frontend
-```
-
-3. Deploy the changes directly from the filesystem
-
-```makefile
-deploy-frontend: fe-bucket
-	(cd frontend && npm install)
-	(cd frontend && npm run-script build)
-	(cd frontend && aws s3 sync build/ s3://$(FE_BUCKET_NAME) --delete --acl public-read)
-	@ echo
-	@ echo
-	@ echo "https://$(FE_BUCKET_NAME).s3.$(AWS_REGION).amazonaws.com/index.html"
-	@ echo
-	@ echo
-``` 
-
-4. An additional guard helper target to check for the existence of certain environment vars
-```makefile
-guard-%:
-	@ if [ -z '${${*}}' ]; then \
-		echo "Environment variable $* not set"; \
-		exit 1; \
-	fi
-```
-
-**Attention**
-
-The file `frontend/src/_aws-exports.js` must be renamed to `frontend/src/aws-exports.js` and the API endpoint needs
-to be configured (including the stage `https://SOME_ID.execute-api.eu-central-1.amazonaws.com/Prod`).
-
-## CORS
-
-In order to call the API from within your Browser via JavaScript, you need to enable CORS handling in the API Gateway.
-To read more about what CORS is all about: you can find a good explanation at [Mozillas Developer Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
-
-To configure CORS settings with the API Gateway, you need to 
-
-- explicitly create a [AWS::Serverless::Api](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessapi) 
-(until now this happened implicitly, because we where using [Event Source Type API](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api))
-- configure your function to make use of this API (see: `RestApiId` property of [API Event Type](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api))
-- set `AllowMethods`, `AllowHeaders` and `AllowOrigin` in the [Cors Configuration](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#cors-configuration)
+    Browser->>APIGateway: GET /bar
+    APIGateway->>Lambda: Invoke
+    Lambda->>DynamoDB: GetItem
+    DynamoDB-->>Lambda: OK
+    Lambda-->>Browser: HTTP 302 Location: https://superluminar.io
+{{< /mermaid >}}
 
 ## Hints
-- Explicitly creating an `AWS::Serverless::Api` leads to a new API Gateway. This means the URL will change!
-- You can find an example implementation here: https://github.com/superluminar-io/serverless-workshop-go/compare/lab1..lab2?expand=1
+
+### Create a DynamoDB table
+Make an addition to your CDK stack to define the DynamoDB table resource.
+You need to add the DynamoDB package dependency in the `build.gradle` file.
+Add the something like this to `ServerlessWorkshopStack.java`
+```java
+// Create DynamoDB table
+Table table = Table.Builder.create(this, "dynamoDbTable")
+    .partitionKey(Attribute.builder().name("id").type(AttributeType.STRING).build())
+    .build();
+```
+For an overview of the DynamoDB package, [see here](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-dynamodb-readme.html).
+
+### Give your Lambda functions permissions to access the DynamoDB table
+
+Take a look at the [`grantReadData`](https://docs.aws.amazon.com/cdk/api/latest/java/software/amazon/awscdk/services/dynamodb/Table.html#grantReadData-software.amazon.awscdk.services.iam.IGrantable-) method on your `Table` class.
+
+### Inject the DynamoDB table via environment variables
+
+Lambda functions have access to their [environment](https://docs.aws.amazon.com/cdk/api/latest/java/software/amazon/awscdk/services/lambda/Function.Builder.html#environment-java.util.Map-).
+Define a variable and pass in the table name.
+
+### Use the AWS SDK to query DynamoDB
+
+Use the [AWS SDK](https://docs.aws.amazon.com/sdk-for-java/v2/developer-guide/setup-project-gradle.html) to read and write data from DynamoDB.
+Setup a client like this:
+```java
+DynamoDBClient client = DynamoDbClient.builder()
+    .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+    .region(Region.of(System.getenv(SdkSystemSetting.AWS_REGION.environmentVariable())))
+    .build();
+```
+
+Use the methods `getItem`/`putItem`.
+
+### Use path parameters
+
+Use [path parameters](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-routes.html#http-api-routes-path-variables) to inject the path value into your Lambda function. See `APIGatewayProxyRequestEvent.getPathParameters`.  
+
+### Generate a short unique ID
+
+Generate a short unique ID for the URL with a [fancy algorithm](https://github.com/snimavat/shortid).
+
+## Cheating
+You can find an example implementation here: https://github.com/superluminar-io/cdk-java-workshop/compare/lab0..lab1?expand=1

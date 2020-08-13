@@ -1,11 +1,12 @@
 ---
 title: Lab 6 - Tracing w/ X-Ray
 weight: 40
+draft: true
 ---
 
 **In this Lab we will**:
 
-- Enable AWS X-Ray for our functions using AWS SAM
+- Enable AWS X-Ray for our functions using AWS CDK
 - Learn how distributed tracing works with AWS X-Ray 
 - Instrument our application code to gain even more insights
 

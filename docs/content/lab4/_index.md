@@ -1,46 +1,38 @@
 ---
-title: Lab 4 - Auth via Cognito
-weight: 30
+title: Lab 4 - Unfurling URLs 
+weight: 25
+draft: true
 ---
 
 **In this Lab we will**:
 
-- Create a Cognito User Pool
-- Configure API Gateway to use that user pool for authentication
-- Extend our frontend to allow *sign-up* and *sign-in*
+- Use [DynamoDB Streams](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html)
+- Create an additional function and DynamoDB table
 
 **You completed this lab if you**:
 
-- Can sign-up a new user via the frontend
-- Can sign-in this user via the frontend
-- Can still shorten URLs
+- Automatically store "preview information" for every new shortened url
+- Took a look at the preview tables items as they get created
 
 ## Overview
 
 At the end of this lab the url shortener will consist of the following components.
 
-![Diagram Lab 4](./Lab4.png)
+![Diagram Lab 3](./Lab3.png)
 
 
-## Cognito User Pool
+## Preview functionality
 
-Setting up a Cognito User Pool can be a bit tricky. In order to make it work, you need to:
+When pasting a URL into Twitter, Slack or similar we immediately see a preview. Let’s assume we want to save preview information for every URL we shorten. For each newly created short URL fetch a preview of the website and store it.
 
-- Create a [AWS::Cognito::UserPool](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cognito-userpool.html)
-- Create a [AWS::Cognito::UserPoolClient](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cognito-userpoolclient.html) and connect it to the user pool
-- Create an [Authorizer](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api-auth-object) on the API Gateway
-- [Use this authorizer](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#function-auth-object) with the functions you want to protect (maybe only `create-url` for now)
-- Hint: Have a close look to the CORS property `AllowHeaders` you defined earlier
+You have to:
 
-## Frontend Changes
-
-In order to connect the frontend with Cognito and allow sign-in / sign-up, we need to:
-
-- Configure the App via `aws-exports.js`
-- Send the `Authorization` header with request that need to authorize ([example](https://aws-amplify.github.io/docs/js/api#cognito-user-pools-authorization))
-- Set the `formType` to `signIn` or `signUp` in order to show the correct widget
+- Create a new function
+- Create a new DynamoDB table
+- Hook up the function to a DynamoDB stream ([SAM example](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#dynamodb))
+- Fetch a preview using e.g. https://github.com/badoux/goscraper
+- Shorten a new url and check if a preview got stored
 
 ## Hints
 
-- You can find an example implementation here: https://github.com/superluminar-io/serverless-workshop-go/compare/lab3..lab4?expand=1
-- Changes to the Frontend App (revert): https://github.com/superluminar-io/sac-workshop-fe/commit/5bbb8c9fab7705b3954f86d34981078b8e52261c
+You can find an example implementation here: https://github.com/superluminar-io/serverless-workshop-go/compare/lab2..lab3?expand=1
