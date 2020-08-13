@@ -293,7 +293,7 @@ Now use the output from above and call your HTTP handler, it should print "Hello
 
 ## CloudFormation
 
-If you check out the [CloudFormation console](https://eu-central-1.console.aws.amazon.com/cloudformation/home?region=eu-central-1) you will notice a new stack with the name you just defined in the guided deployment. CloudFormation is essentially a tool to provision, maintain and remove infrastructure in AWS. SAM uses CloudFormation under the hood to deploy the infrastrucutre we describe in this workshop.
+If you check out the [CloudFormation console](https://eu-central-1.console.aws.amazon.com/cloudformation/home?region=eu-central-1) you will notice a new stack with the name you just defined in the guided deployment. CloudFormation is essentially a tool to provision, maintain and remove infrastructure in AWS. AWS CDK uses CloudFormation under the hood to deploy the infrastrucutre we describe in this workshop.
 
 Try to figure out:
 
