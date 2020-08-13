@@ -1,6 +1,6 @@
 theme = "hugo-theme-learn"
 languageCode = "en-us"
-title = "superluminar - Serverless Workshop"
+title = "superluminar - Java CDK Workshop"
 
 [params]
 editURL = "https://github.com/superluminar-io/cdk-java-workshop/edit/master/content/"

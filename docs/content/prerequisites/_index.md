@@ -69,7 +69,10 @@ cdk --version
 
 ## Bootstrap CDK for your AWS Account
 
-This needs to be done only once per AWS Account (co-ordinate by yourselves who is going to do this):
+{{% notice info %}}
+This needs to be done only once per AWS Account (co-ordinate by yourselves who is going to do this)
+{{% /notice %}}
+
 ```shell script
 cdk bootstrap <aws-account-id>/eu-central-1
 ```
