@@ -25,6 +25,23 @@ We recommend you create a dedicated IAM user following [this guide](https://docs
 
 Make sure, that you are able to login into the [AWS Console](https://console.aws.amazon.com/) with your IAM user.
 
+Use `aws configure` to setup your AWS account.
+
+```
+aws configure
+AWS Access Key ID [None]: YOUR KEY
+AWS Secret Access Key [None]: YOUR SECRET KEY
+Default region name [None]: eu-central-1
+Default output format [None]: json
+```
+
+Now try the following:
+```
+aws sts get-caller-identity
+```
+
+In the output you should see something similar to `arn:aws:iam::123456789012:user/Alice`.
+
 ## NodeJS
 
 The AWS CDK uses Node.js (>= 10.3.0).
@@ -65,24 +82,6 @@ You can check the toolkit version:
 ```
 cdk --version
 1.57
-```
-
-## Tell CDK your AWS region and API credentials
-
-Windows:
-
-```
-SET AWS_DEFAULT_REGION=eu-central-1
-SET AWS_ACCESS_KEY_ID=AKIA3DSBXXXXXXXXXXXX
-SET AWS_SECRET_ACCESS_KEY=2Gex8xT5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-```
-
-Mac/Linux:
-
-```
-export AWS_DEFAULT_REGION=eu-central-1
-export AWS_ACCESS_KEY_ID=AKIA3DSBXXXXXXXXXXXX
-export AWS_SECRET_ACCESS_KEY=2Gex8xT5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ```
 
 ## Bootstrap CDK for your AWS Account
