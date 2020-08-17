@@ -77,3 +77,7 @@ This needs to be done only once per AWS Account (co-ordinate by yourselves who i
 cdk bootstrap <aws-account-id>/eu-central-1
 ```
 where `aws-account-id` is the account id without dashes.
+
+## Java and Gradle
+
+You will also need [Java JDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html) 1.8 or higher and the latest version of [Gradle](https://gradle.org/install/).
