@@ -6,7 +6,7 @@ weight: 15
 **In this Lab we will**:
 
 - Create a first basic version of the url shortener
-- Learn how to store data in AWS DynamoDB using the [AWS Go SDK](https://aws.amazon.com/sdk-for-go/)
+- Learn how to store data in AWS DynamoDB using the [AWS Java SDK](https://aws.amazon.com/sdk-for-java/)
 - See some more advanced features of AWS SAM Templates
 
 **You completed this lab if you**:
