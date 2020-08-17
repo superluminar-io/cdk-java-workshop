@@ -239,7 +239,7 @@ public class ServerlessWorkshopStack extends Stack {
         // Create the Lambda function
         Function myFunc = Function.Builder.create(this, "helloWorld")
             .code(Code.fromAsset(System.getProperty("user.dir") + "/lambda/build/distributions/lambda.zip"))
-            .handler("com.example.HelloWorldHandler")
+            .handler("com.myorg.HelloWorldHandler")
             .runtime(Runtime.JAVA_8)
             .memorySize(512) // Java loves memory
             .timeout(Duration.seconds(10)) // Class loading can take some time
