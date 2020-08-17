@@ -104,7 +104,7 @@ Use [path parameters](https://docs.aws.amazon.com/apigateway/latest/developergui
 ### Generate a short unique ID
 
 Generate a short unique ID for the URL with a [fancy algorithm](https://github.com/snimavat/shortid).
-Or use this, an implementation of the (FNV-hash)[https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function]:
+Or use this, an implementation of the [FNV-hash](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function):
 ```java
     private String shortenURL(String url) {
         byte[] data = url.getBytes();
