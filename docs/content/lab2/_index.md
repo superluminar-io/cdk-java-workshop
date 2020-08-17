@@ -1,4 +1,3 @@
-G
 ---
 title: Lab 2 - URL Shortener
 weight: 15
