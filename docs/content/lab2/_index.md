@@ -103,6 +103,18 @@ Use [path parameters](https://docs.aws.amazon.com/apigateway/latest/developergui
 ### Generate a short unique ID
 
 Generate a short unique ID for the URL with a [fancy algorithm](https://github.com/snimavat/shortid).
+Or use this:
+```java
+    private String shortenURL(String url) {
+        byte[] data = url.getBytes();
+        BigInteger hash = new BigInteger("cbf29ce484222325", 16);
+        for (byte b : data) {
+            hash = hash.xor(BigInteger.valueOf((int) b & 0xff));
+            hash = hash.multiply(new BigInteger("100000001b3", 16)).mod(new BigInteger("2").pow(64));
+        }
+        return hash.toString(36);
+    }
+```
 
 ## Cheating
 You can find an example implementation here: https://github.com/superluminar-io/cdk-java-workshop/compare/lab0..lab1?expand=1
