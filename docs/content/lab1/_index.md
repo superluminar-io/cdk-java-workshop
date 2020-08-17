@@ -299,3 +299,7 @@ Try to figure out:
 
 - Which resources did we just deploy?
 - What are outputs and why are they helpful?
+
+## Bonus: Extend your function to log something
+
+Try to [log](https://docs.aws.amazon.com/lambda/latest/dg/java-logging.html) something and find the output in Cloudwatch Logs.
